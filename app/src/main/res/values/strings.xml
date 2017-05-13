@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+    <string name="base_url">http://api.themoviedb.org</string>
+    <string name="jos_nepoznato">3</string>
+    <string name="sort_by_category">movie</string>
+    <string name="sort_by_popular">popular</string>
+    <string name="sort_by_rating">top_rated</string>
+    <string name="url_api_key">api_key</string>
+    <string name="api_key">1010876800aa1596dc525624ff823d9d</string>
+    <string name="tv_sort_by">Sort movies by: </string>
+    <string name="random">Random</string>
+    <string name="popular">Popularity</string>
+    <string name="rating">Rating</string>
+    <string name="json_results">results</string>
+    <string name="pm_message_code">cod</string>
+    <string name="json_response_image_link">poster_path</string>
+    <string name="json_response_ovierview">overview</string>
+    <string name="json_response_release_date">release_date</string>
+    <string name="json_response_original_title">original_title</string>
+    <string name="json_response_popularity">popularity</string>
+    <string name="json_response_vote_average">vote_average</string>
+</resources>
