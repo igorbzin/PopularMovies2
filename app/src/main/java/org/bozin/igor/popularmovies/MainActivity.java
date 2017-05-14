@@ -19,6 +19,8 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieItemClickListener {
 
+
+
     private RecyclerView recyclerView;
     private GridLayoutManager gridLayoutManager;
     private MovieAdapter movieAdapter;
