@@ -24,6 +24,7 @@ public class NetworkUtils {
     static String API_Key_param = MainActivity.resources.getString(R.string.url_api_key);
     static String API_Key = MainActivity.resources.getString(R.string.api_key);
     static String sortByCategory = MainActivity.resources.getString(R.string.sort_by_category);
+    static String imageBaseURL = MainActivity.resources.getString(R.string.image_base_url);
 
 
 
@@ -45,6 +46,29 @@ public class NetworkUtils {
         }
 
         Log.v(TAG, "Built URI:  " + url);
+
+        return url;
+    }
+
+
+    public static URL buildImageURL(String imageLink) {
+
+        Uri builtUri = Uri.parse(imageBaseURL).buildUpon()
+                .appendPath("t")
+                .appendPath("p")
+                .appendPath(MainActivity.resources.getString(R.string.image_url_width))
+                .appendEncodedPath(imageLink)
+                .build();
+
+        URL url = null;
+
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        Log.v("IMAGE URL", "Built URI:  " + url);
 
         return url;
     }

@@ -17,13 +17,19 @@ import java.util.List;
  * Created by igorb on 08.05.2017.
  */
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder>  {
 
+    private MovieItemClickListener mOnClickListener;
+
+    public interface MovieItemClickListener{
+        void onMovieItemClick(Movie clickedMovie);
+    }
 
     private ArrayList<Movie> movieList = new ArrayList<Movie>();
 
-    public MovieAdapter(ArrayList<Movie> movies){
+    public MovieAdapter(ArrayList<Movie> movies, MovieItemClickListener onClickListener){
         movieList = movies;
+        mOnClickListener = onClickListener;
     }
 
 
@@ -39,7 +45,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     public void onBindViewHolder(ViewHolder holder, int position) {
         String imageLink = movieList.get(position).getImageLink();
         Log.v("Image", imageLink);
-        Picasso.with(holder.moviePoster.getContext()).load("http://image.tmdb.org/t/p/w185/"+imageLink).into(holder.moviePoster);
+        Picasso.with(holder.moviePoster.getContext()).load(NetworkUtils.buildImageURL(imageLink).toString()).into(holder.moviePoster);
     }
 
     @Override
@@ -47,7 +53,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         return movieList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public ImageView moviePoster;
 
         public ViewHolder (View itemView){
@@ -55,7 +61,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
             moviePoster = (ImageView)itemView.findViewById(R.id.iv_movie_poster);
         }
 
-
-
+        @Override
+        public void onClick(View v) {
+            int clickedPosition = getAdapterPosition();
+            Movie clickedMovie = movieList.get(clickedPosition);
+            mOnClickListener.onMovieItemClick(clickedMovie);
+        }
     }
 }
