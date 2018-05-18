@@ -3,10 +3,11 @@
     <string name="base_url">http://api.themoviedb.org</string>
     <string name="jos_nepoznato">3</string>
     <string name="sort_by_category">movie</string>
+    <string name="videos">videos</string>
     <string name="sort_by_popular">popular</string>
     <string name="sort_by_rating">top_rated</string>
     <string name="url_api_key">api_key</string>
-    <string name="api_key">API_KEY</string>
+    <string name="api_key">1010876800aa1596dc525624ff823d9d</string>
     <string name="tv_sort_by">Sort movies by: </string>
     <string name="random">Random</string>
     <string name="popular">Popularity</string>
@@ -19,9 +20,32 @@
     <string name="json_response_original_title">original_title</string>
     <string name="json_response_popularity">popularity</string>
     <string name="json_response_vote_average">vote_average</string>
+    <string name="json_response_movie_id">id</string>
+    <string name="json_response_trailer_name">name</string>
+    <string name="json_response_trailer_key">key</string>
+    <string name="json_response_review">reviews</string>
+    <string name="json_response_review_author">author</string>
+    <string name="json_response_review_content">content</string>
+    <string name="json_response_runtime">runtime</string>
 
     <string name="user_rating">User rating:</string>
     <string name="release_date">Release date:</string>
+    <string name="runtime">Runtime:</string>
+    <string name="trailers">Trailers:</string>
+    <string name="reviews">Reviews:</string>
     <string name="image_base_url">http://image.tmdb.org</string>
+    <string name="youtube_base_url">http://www.youtube.com</string>
+    <string name="youtube_watch_video_path">watch</string>
+    <string name="youtube_query_param">v</string>
     <string name="image_url_width">w185</string>
+    
+    
+    <string name="ph_average_vote">8.1</string>
+    <string name="ph_release_date">2015-07-09</string>
+    <string name="ph_runtime">2 h 40 min</string>
+    <string name="ph_movie_name">The Foreigner</string>
+    <string name="ph_review">Best Action Movie...why? Certainly not over priced special effects and huge explosions. This movie was deep...pay attention. The plot is intricately woven and suspenseful. Jackie plays an Oscar worthy role as a deeply mournful parent looking for answers and won't take no for an answer. Pierce was sensational and very believable. One of the best all around casting jobs I've seen in a while. If you know nothing about the Brits and the IRA conflicts, spend 5 minutes on Wikipedia before going to see the movie. This is a must see!!
+    </string>
+    <string name="ph_review_author">Sol Videla</string>
+    <string name="ph_description">The story of humble London businessman Quan (Chan), whose long-buried past erupts in a revenge-fueled vendetta when the only person left for him to love - his teenage daughter - is taken from him in a senseless act of politically-motivated terrorism. In his relentless search for the identity of the terrorists, Quan is forced into a cat- and-mouse conflict with a Irish government official (Brosnan), whose own past may hold clues to the identities of the elusive killers.</string>
 </resources>

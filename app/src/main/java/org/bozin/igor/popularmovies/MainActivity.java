@@ -59,16 +59,20 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String message = "";
+                String message;
 
                 switch (position) {
                     case 0:
                         loadMovieData(sortByPopular);
-                        message = "random got selected";
+                        message = "popular got selected";
                         break;
                     case 1:
                         loadMovieData(sortByRating);
                         message = "rating got selected";
+                        break;
+                    default:
+                        loadMovieData(sortByPopular);
+                        message = "default selection";
                         break;
                 }
                 Log.v("Dropdown", message);

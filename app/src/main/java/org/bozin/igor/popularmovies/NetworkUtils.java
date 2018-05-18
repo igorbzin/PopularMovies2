@@ -1,6 +1,6 @@
 package org.bozin.igor.popularmovies;
 
-import android.content.res.Resources;
+
 import android.net.Uri;
 import android.util.Log;
 
@@ -24,17 +24,18 @@ public class NetworkUtils {
     static String API_Key_param = MainActivity.resources.getString(R.string.url_api_key);
     static String API_Key = MainActivity.resources.getString(R.string.api_key);
     static String sortByCategory = MainActivity.resources.getString(R.string.sort_by_category);
+    static String videos = MainActivity.resources.getString(R.string.videos);
     static String imageBaseURL = MainActivity.resources.getString(R.string.image_base_url);
-
+    static String reviews = MainActivity.resources.getString(R.string.json_response_review);
 
 
     public static URL buildURL(String sortByCriterium) {
-        baseURL  = MainActivity.resources.getString(R.string.base_url);
+        baseURL = MainActivity.resources.getString(R.string.base_url);
         Uri builtUri = Uri.parse(baseURL).buildUpon()
                 .appendPath(jos_nepoznato)
                 .appendPath(sortByCategory)
                 .appendPath(sortByCriterium)
-                .appendQueryParameter(API_Key_param,API_Key)
+                .appendQueryParameter(API_Key_param, API_Key)
                 .build();
 
         URL url = null;
@@ -72,6 +73,86 @@ public class NetworkUtils {
 
         return url;
     }
+
+    public static URL buildDetailsURL(String movieID) {
+        Uri builtUri = Uri.parse(baseURL).buildUpon()
+                .appendPath(jos_nepoznato)
+                .appendPath(sortByCategory)
+                .appendPath(movieID)
+                .appendQueryParameter(API_Key_param, API_Key)
+                .build();
+
+        URL url = null;
+
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return url;
+    }
+
+    public static URL buildTrailersURL (String movieID){
+        Uri builtUri = Uri.parse(baseURL).buildUpon()
+                .appendPath(jos_nepoznato)
+                .appendPath(sortByCategory)
+                .appendPath(movieID)
+                .appendPath(videos)
+                .appendQueryParameter(API_Key_param, API_Key)
+                .build();
+
+        URL url = null;
+
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return url;
+    }
+
+    public static URL buildReviewsURL (String movieID){
+        Uri builtUri = Uri.parse(baseURL).buildUpon()
+                .appendPath(jos_nepoznato)
+                .appendPath(sortByCategory)
+                .appendPath(movieID)
+                .appendPath(reviews)
+                .appendQueryParameter(API_Key_param, API_Key)
+                .build();
+        URL url = null;
+
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
+
+
+    public static URL buildYoutubeURL(String key){
+        String youtubeBaseURL = MainActivity.resources.getString(R.string.youtube_base_url);
+        String youtubeWatchPath = MainActivity.resources.getString(R.string.youtube_watch_video_path);
+        String youtubeQueryParam = MainActivity.resources.getString(R.string.youtube_query_param);
+
+        Uri builtUri  = Uri.parse(youtubeBaseURL).buildUpon()
+                .appendPath(youtubeWatchPath)
+                .appendQueryParameter(youtubeQueryParam, key)
+                .build();
+        URL url = null;
+
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return url;
+    }
+
 
 
     public static String getResponseFromHttpURL(URL url) throws IOException {

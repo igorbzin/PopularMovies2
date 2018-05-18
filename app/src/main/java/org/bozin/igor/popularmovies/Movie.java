@@ -14,6 +14,18 @@ public class Movie implements Serializable {
     private String overview;
     private String vote_average;
     private String releaseDate;
+    private String runtime;
+    private int id;
+
+
+    public Movie(String movieName, String link, String description, String average_vote, String date, int movieId){
+        movieTitle = movieName;
+        imageLink = link;
+        overview = description;
+        vote_average = average_vote;
+        releaseDate = date;
+        id = movieId;
+    }
 
 
     public String getOverview() {
@@ -56,11 +68,19 @@ public class Movie implements Serializable {
         this.movieTitle = movieTitle;
     }
 
-    public Movie(String movieName, String link, String description, String average_vote, String date){
-        movieTitle = movieName;
-        imageLink = link;
-        overview = description;
-        vote_average = average_vote;
-        releaseDate = date;
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getRuntime() {
+        return runtime;
+    }
+
+    public void setRuntime(String runtime) {
+        this.runtime = runtime;
     }
 }
