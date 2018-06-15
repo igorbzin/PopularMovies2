@@ -19,6 +19,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".MovieDetailsActivity"></activity>
+        <provider
+            android:authorities="org.bozin.igor.popularmovies"
+            android:name="org.bozin.igor.popularmovies.data.MovieContentProvider"/>
     </application>
 
 </manifest>

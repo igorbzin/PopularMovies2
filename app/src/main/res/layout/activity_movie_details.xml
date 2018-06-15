@@ -12,6 +12,7 @@
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/cl_activity_detail"
         tools:context="org.bozin.igor.popularmovies.MovieDetailsActivity"
         tools:layout_editor_absoluteY="81dp">
 
@@ -212,8 +213,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/divider2" />
 
+        <Button
+            android:id="@+id/btn_favorite_movies"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:text="   "
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/tv_runtime" />
+
     </android.support.constraint.ConstraintLayout>
-
-
     </android.support.v4.widget.NestedScrollView>
 </layout>

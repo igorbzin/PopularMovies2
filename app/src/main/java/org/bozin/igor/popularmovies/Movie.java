@@ -16,7 +16,7 @@ public class Movie implements Serializable {
     private String releaseDate;
     private String runtime;
     private int id;
-
+    private int dbID;
 
     public Movie(String movieName, String link, String description, String average_vote, String date, int movieId){
         movieTitle = movieName;
@@ -25,8 +25,16 @@ public class Movie implements Serializable {
         vote_average = average_vote;
         releaseDate = date;
         id = movieId;
+        dbID = -1;
     }
 
+    public int getDbID() {
+        return dbID;
+    }
+
+    public void setDbID(int dbID) {
+        this.dbID = dbID;
+    }
 
     public String getOverview() {
         return overview;

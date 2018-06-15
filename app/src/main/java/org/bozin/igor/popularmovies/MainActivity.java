@@ -1,8 +1,14 @@
 package org.bozin.igor.popularmovies;
 
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,13 +20,15 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import org.bozin.igor.popularmovies.data.MoviesContract;
+
 import java.net.URL;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieItemClickListener {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
 
-
+    private static final int LOADER_ID = 1;
     private RecyclerView recyclerView;
     private GridLayoutManager gridLayoutManager;
     private MovieAdapter movieAdapter;
@@ -30,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private String random;
     private String popular;
     private String rating;
+    private String favorite;
     public static Resources resources;
 
 
@@ -43,9 +52,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         random = getString(R.string.random);
         popular = getString(R.string.popular);
         rating = getString(R.string.rating);
-        String[] items = new String[]{popular, rating};
-        recyclerView = (RecyclerView) findViewById(R.id.rv_film_list);
-        dropdown = (Spinner) findViewById(R.id.spinner_dropdown);
+        favorite = getString(R.string.favorite);
+        String[] items = new String[]{popular, rating, favorite};
+        recyclerView = findViewById(R.id.rv_film_list);
+        dropdown = findViewById(R.id.spinner_dropdown);
         ArrayAdapter<String> dropDownAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, items);
         dropdown.setAdapter(dropDownAdapter);
         gridLayoutManager = new GridLayoutManager(MainActivity.this, 2);
@@ -59,23 +69,21 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String message;
 
                 switch (position) {
                     case 0:
                         loadMovieData(sortByPopular);
-                        message = "popular got selected";
                         break;
                     case 1:
                         loadMovieData(sortByRating);
-                        message = "rating got selected";
+                        break;
+                    case 2:
+                        getSupportLoaderManager().restartLoader(LOADER_ID, null, MainActivity.this);
                         break;
                     default:
                         loadMovieData(sortByPopular);
-                        message = "default selection";
                         break;
                 }
-                Log.v("Dropdown", message);
 
             }
 
@@ -91,6 +99,57 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public void loadMovieData(String sortCriterium) {
         recyclerView.invalidate();
         new FetchMoviesTask().execute(sortCriterium);
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, final Bundle bundle) {
+
+        Context context = getApplicationContext();
+        return new AsyncTaskLoader<Cursor>(this) {
+
+            Cursor mMovieData = null;
+
+            @Override
+            protected void onStartLoading() {
+                if (mMovieData != null) {
+                    deliverResult(mMovieData);
+                } else {
+                    forceLoad();
+                }
+
+            }
+
+            @Override
+            public Cursor loadInBackground() {
+
+
+                try {
+                    return getContentResolver().query(MoviesContract.MoviesEntry.CONTENT_URI, null, null, null, MoviesContract.MoviesEntry._ID);
+                } catch (Exception e) {
+                    Log.e("AsyncError", "Failed to load movie data");
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+
+            @Override
+            public void deliverResult(Cursor data) {
+                mMovieData = data;
+                super.deliverResult(data);
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        movieAdapter.swapData(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 
     public class FetchMoviesTask extends AsyncTask<String, Void, ArrayList<Movie>> {
@@ -128,5 +187,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         Intent intent = new Intent(this, MovieDetailsActivity.class);
         intent.putExtra("clicked_movie", clickedMovie);
         startActivity(intent);
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (dropdown.getSelectedItemPosition() == 2) {
+            getSupportLoaderManager().restartLoader(LOADER_ID, null, MainActivity.this);
+        }
     }
 }

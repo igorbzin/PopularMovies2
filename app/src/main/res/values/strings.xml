@@ -12,6 +12,7 @@
     <string name="random">Random</string>
     <string name="popular">Popularity</string>
     <string name="rating">Rating</string>
+    <string name="favorite">Favorite</string>
     <string name="json_results">results</string>
     <string name="pm_message_code">cod</string>
     <string name="json_response_image_link">poster_path</string>
