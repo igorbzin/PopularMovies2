@@ -2,20 +2,18 @@ package org.bozin.igor.popularmovies;
 
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -26,7 +24,7 @@ import org.bozin.igor.popularmovies.data.MoviesContract;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieItemClickListener, LoaderManager.LoaderCallbacks {
 
 
     private static final int LOADER_ID = 1;
@@ -126,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     protected void onRestoreInstanceState(Bundle state) {
         super.onRestoreInstanceState(state);
         // Retrieve list state and list/item positions
-        if(state != null)
+        if (state != null)
             listState = state.getParcelable(LIST_STATE_KEY);
     }
 
@@ -134,10 +132,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     @Override
     protected void onResume() {
         super.onResume();
-        if (dropdown.getSelectedItemPosition() == 2) {
-            getSupportLoaderManager().restartLoader(LOADER_ID, null, MainActivity.this);
-        }
-
         if (listState != null) {
             mGridLayoutManager.onRestoreInstanceState(mBundleRecyclerViewState);
         }
@@ -146,54 +140,24 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     @SuppressLint("StaticFieldLeak")
     @Override
-    public Loader<Cursor> onCreateLoader(int i, final Bundle bundle) {
-
-        Context context = getApplicationContext();
-        return new AsyncTaskLoader<Cursor>(this) {
-
-            Cursor mMovieData = null;
-
-            @Override
-            protected void onStartLoading() {
-                if (mMovieData != null) {
-                    deliverResult(mMovieData);
-                } else {
-                    forceLoad();
-                }
-
-            }
-
-            @Override
-            public Cursor loadInBackground() {
-
-
-                try {
-                    return getContentResolver().query(MoviesContract.MoviesEntry.CONTENT_URI, null, null, null, MoviesContract.MoviesEntry._ID);
-                } catch (Exception e) {
-                    Log.e("AsyncError", "Failed to load movie data");
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-
-
-            @Override
-            public void deliverResult(Cursor data) {
-                mMovieData = data;
-                super.deliverResult(data);
-            }
-        };
+    public Loader onCreateLoader(int i, final Bundle bundle) {
+        Uri uri = MoviesContract.MoviesEntry.CONTENT_URI;
+        android.support.v4.content.CursorLoader cursorLoader = new android.support.v4.content.CursorLoader(MainActivity.this, uri, null, null, null, null);
+        return cursorLoader;
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        movieAdapter.swapData(data);
+    public void onLoadFinished(Loader loader, Object data) {
+        if (dropdown.getSelectedItemPosition() == 2) {
+            movieAdapter.swapData((Cursor) data);
+        }
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
+    public void onLoaderReset(Loader loader) {
 
     }
+
 
     public class FetchMoviesTask extends AsyncTask<String, Void, ArrayList<Movie>> {
         @Override
@@ -231,7 +195,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         intent.putExtra("clicked_movie", clickedMovie);
         startActivity(intent);
     }
-
 
 
 }
