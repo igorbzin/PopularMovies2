@@ -4,6 +4,7 @@ package org.bozin.igor.popularmovies;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     private static final int LOADER_ID = 1;
     private RecyclerView recyclerView;
-    private GridLayoutManager gridLayoutManager;
+    private GridLayoutManager mGridLayoutManager;
     private MovieAdapter movieAdapter;
     private String sortByPopular;
     private String sortByRating;
@@ -40,6 +41,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private String rating;
     private String favorite;
     public static Resources resources;
+    public final static String LIST_STATE_KEY = "recycler_list_state";
+    Parcelable listState;
+    private static Bundle mBundleRecyclerViewState;
 
 
     @Override
@@ -58,8 +62,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         dropdown = findViewById(R.id.spinner_dropdown);
         ArrayAdapter<String> dropDownAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, items);
         dropdown.setAdapter(dropDownAdapter);
-        gridLayoutManager = new GridLayoutManager(MainActivity.this, 2);
-        recyclerView.setLayoutManager(gridLayoutManager);
+        mGridLayoutManager = new GridLayoutManager(MainActivity.this, 2);
+        recyclerView.setLayoutManager(mGridLayoutManager);
         recyclerView.setHasFixedSize(true);
         loadMovieData(sortByPopular);
 
@@ -100,6 +104,45 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         recyclerView.invalidate();
         new FetchMoviesTask().execute(sortCriterium);
     }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mBundleRecyclerViewState = new Bundle();
+        onSaveInstanceState(mBundleRecyclerViewState);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        // Save list state
+        listState = mGridLayoutManager.onSaveInstanceState();
+        state.putParcelable(LIST_STATE_KEY, listState);
+    }
+
+
+    @Override
+    protected void onRestoreInstanceState(Bundle state) {
+        super.onRestoreInstanceState(state);
+        // Retrieve list state and list/item positions
+        if(state != null)
+            listState = state.getParcelable(LIST_STATE_KEY);
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (dropdown.getSelectedItemPosition() == 2) {
+            getSupportLoaderManager().restartLoader(LOADER_ID, null, MainActivity.this);
+        }
+
+        if (listState != null) {
+            mGridLayoutManager.onRestoreInstanceState(mBundleRecyclerViewState);
+        }
+    }
+
 
     @SuppressLint("StaticFieldLeak")
     @Override
@@ -190,11 +233,5 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (dropdown.getSelectedItemPosition() == 2) {
-            getSupportLoaderManager().restartLoader(LOADER_ID, null, MainActivity.this);
-        }
-    }
+
 }
