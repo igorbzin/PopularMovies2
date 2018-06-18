@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
         // Save list state
-        listState = mGridLayoutManager.onSaveInstanceState();
+        listState = recyclerView.getLayoutManager().onSaveInstanceState();
         state.putParcelable(LIST_STATE_KEY, listState);
     }
 
@@ -185,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             if (movieArray != null) {
                 movieAdapter = new MovieAdapter(movieArray, MainActivity.this);
                 recyclerView.setAdapter(movieAdapter);
+                recyclerView.getLayoutManager().onRestoreInstanceState(mBundleRecyclerViewState);
             }
         }
     }
