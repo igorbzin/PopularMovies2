@@ -1,5 +1,8 @@
 package org.bozin.igor.popularmovies;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.json.JSONObject;
 
 import java.io.Serializable;
@@ -8,7 +11,7 @@ import java.io.Serializable;
  * Created by igorb on 08.05.2017.
  */
 
-public class Movie implements Serializable {
+public class Movie implements Parcelable {
     private String imageLink;
     private String movieTitle;
     private String overview;
@@ -28,12 +31,20 @@ public class Movie implements Serializable {
         dbID = -1;
     }
 
-    public int getDbID() {
-        return dbID;
+    public String getImageLink() {
+        return imageLink;
     }
 
-    public void setDbID(int dbID) {
-        this.dbID = dbID;
+    public void setImageLink(String imageLink) {
+        this.imageLink = imageLink;
+    }
+
+    public String getMovieTitle() {
+        return movieTitle;
+    }
+
+    public void setMovieTitle(String movieTitle) {
+        this.movieTitle = movieTitle;
     }
 
     public String getOverview() {
@@ -60,20 +71,12 @@ public class Movie implements Serializable {
         this.releaseDate = releaseDate;
     }
 
-    public String getImageLink() {
-        return imageLink;
+    public String getRuntime() {
+        return runtime;
     }
 
-    public void setImageLink(String imageLink) {
-        this.imageLink = imageLink;
-    }
-
-    public String getMovieTitle() {
-        return movieTitle;
-    }
-
-    public void setMovieTitle(String movieTitle) {
-        this.movieTitle = movieTitle;
+    public void setRuntime(String runtime) {
+        this.runtime = runtime;
     }
 
     public int getId() {
@@ -84,11 +87,52 @@ public class Movie implements Serializable {
         this.id = id;
     }
 
-    public String getRuntime() {
-        return runtime;
+    public int getDbID() {
+        return dbID;
     }
 
-    public void setRuntime(String runtime) {
-        this.runtime = runtime;
+    public void setDbID(int dbID) {
+        this.dbID = dbID;
     }
+
+    @Override
+
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.imageLink);
+        dest.writeString(this.movieTitle);
+        dest.writeString(this.overview);
+        dest.writeString(this.vote_average);
+        dest.writeString(this.releaseDate);
+        dest.writeString(this.runtime);
+        dest.writeInt(this.id);
+        dest.writeInt(this.dbID);
+    }
+
+    protected Movie(Parcel in) {
+        this.imageLink = in.readString();
+        this.movieTitle = in.readString();
+        this.overview = in.readString();
+        this.vote_average = in.readString();
+        this.releaseDate = in.readString();
+        this.runtime = in.readString();
+        this.id = in.readInt();
+        this.dbID = in.readInt();
+    }
+
+    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel source) {
+            return new Movie(source);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
 }

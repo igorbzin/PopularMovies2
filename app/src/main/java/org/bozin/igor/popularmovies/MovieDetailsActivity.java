@@ -63,7 +63,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailerAd
 
         Intent intentWhichStartedActivity = getIntent();
         if (intentWhichStartedActivity.hasExtra("clicked_movie")) {
-            Movie clickedMovie = (Movie) getIntent().getSerializableExtra("clicked_movie");
+            Movie clickedMovie = getIntent().getParcelableExtra("clicked_movie");
 
             movieName = clickedMovie.getMovieTitle();
             moviePosterLink = clickedMovie.getImageLink();
@@ -112,7 +112,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailerAd
                     btnAddFavorite.setBackgroundResource(R.drawable.ic_star_unselected_24dp);
 
                 }
-
 
             }
         });

@@ -10,6 +10,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.content.res.Resources;
 import android.os.AsyncTask;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     private static final int LOADER_ID = 1;
     private RecyclerView recyclerView;
+    private NestedScrollView nestedScrollView;
     private GridLayoutManager mGridLayoutManager;
     private MovieAdapter movieAdapter;
     private String sortByPopular;
@@ -39,9 +41,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private String rating;
     private String favorite;
     public static Resources resources;
-    public final static String LIST_STATE_KEY = "recycler_list_state";
-    Parcelable listState;
-    private static Bundle mBundleRecyclerViewState;
+    private ArrayList<Movie> mMoviesList;
+    public final static String RV_STATE_KEY = "recycler_list_state";
+    public final static String NSV_STATE_KEY = "nested_list_state";
+    public final static String MOVIE_LIST_KEY = "movie_list_state";
+    Parcelable rvListState;
+
 
 
     @Override
@@ -57,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         favorite = getString(R.string.favorite);
         String[] items = new String[]{popular, rating, favorite};
         recyclerView = findViewById(R.id.rv_film_list);
+        nestedScrollView = findViewById(R.id.nsv_main_list);
         dropdown = findViewById(R.id.spinner_dropdown);
         ArrayAdapter<String> dropDownAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, items);
         dropdown.setAdapter(dropDownAdapter);
@@ -104,19 +110,16 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mBundleRecyclerViewState = new Bundle();
-        onSaveInstanceState(mBundleRecyclerViewState);
-    }
+
 
     @Override
     protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
         // Save list state
-        listState = recyclerView.getLayoutManager().onSaveInstanceState();
-        state.putParcelable(LIST_STATE_KEY, listState);
+        rvListState = recyclerView.getLayoutManager().onSaveInstanceState();
+        state.putParcelable(RV_STATE_KEY, rvListState);
+        state.putParcelableArrayList(MOVIE_LIST_KEY, mMoviesList);
+        state.putIntArray(NSV_STATE_KEY, new int[]{nestedScrollView.getScrollX(), nestedScrollView.getScrollY()} );
     }
 
 
@@ -124,18 +127,23 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     protected void onRestoreInstanceState(Bundle state) {
         super.onRestoreInstanceState(state);
         // Retrieve list state and list/item positions
-        if (state != null)
-            listState = state.getParcelable(LIST_STATE_KEY);
-    }
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (listState != null) {
-            mGridLayoutManager.onRestoreInstanceState(mBundleRecyclerViewState);
+        if (state != null){
+            final int[] nsv_position = state.getIntArray(NSV_STATE_KEY);
+            if(nsv_position!= null){
+                nestedScrollView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        nestedScrollView.scrollTo(nsv_position[0], nsv_position[1]);
+                    }
+                });
+            }
+            rvListState = state.getParcelable(RV_STATE_KEY);
+            mMoviesList = state.getParcelableArrayList(MOVIE_LIST_KEY);
+            recyclerView.getLayoutManager().onRestoreInstanceState(rvListState);
         }
     }
+
 
 
     @SuppressLint("StaticFieldLeak")
@@ -167,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             if (params != null && params.length > 0) {
                 String sortCriterium = params[0];
                 URL movieRequestURL = NetworkUtils.buildURL(sortCriterium);
-                movieArray = new ArrayList<Movie>();
+                movieArray = new ArrayList<>();
 
                 try {
                     String JSONMovieResponse = NetworkUtils.getResponseFromHttpURL(movieRequestURL);
@@ -183,9 +191,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         @Override
         protected void onPostExecute(ArrayList<Movie> movieArray) {
             if (movieArray != null) {
-                movieAdapter = new MovieAdapter(movieArray, MainActivity.this);
+                mMoviesList = movieArray;
+                movieAdapter = new MovieAdapter(mMoviesList, MainActivity.this);
                 recyclerView.setAdapter(movieAdapter);
-                recyclerView.getLayoutManager().onRestoreInstanceState(mBundleRecyclerViewState);
             }
         }
     }
