@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public final static String RV_STATE_KEY = "recycler_list_state";
     public final static String MOVIE_LIST_KEY = "movie_list_state";
     Parcelable rvListState;
-    private int orChange;
+
 
 
     @Override
@@ -69,13 +69,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         recyclerView.setHasFixedSize(true);
 
-        orChange = 0;
         if (savedInstanceState != null) {
             mMoviesList = savedInstanceState.getParcelableArrayList(MOVIE_LIST_KEY);
-            movieAdapter = new MovieAdapter(mMoviesList, this, this);
-            movieAdapter.swapData(mMoviesList);
+            movieAdapter = new MovieAdapter(mMoviesList, MainActivity.this, MainActivity.this);
+            recyclerView.setAdapter(movieAdapter);
             recyclerView.getLayoutManager().onRestoreInstanceState(rvListState);
-            orChange = 1;
         } else {
             loadMovieData(sortByPopular);
         }
@@ -95,12 +93,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                         loadMovieData(sortByRating);
                         break;
                     case 2:
-                        if (orChange == 1) {
-                            break;
-                        } else {
-                            getSupportLoaderManager().restartLoader(LOADER_ID, null, MainActivity.this);
-
-                        }
+                        getSupportLoaderManager().restartLoader(LOADER_ID, null, MainActivity.this);
                         break;
                     default:
                         loadMovieData(sortByPopular);
@@ -176,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 }
             }
             mMoviesList = favoriteMovies;
-            movieAdapter.swapData(favoriteMovies);
+            movieAdapter.swapData(mMoviesList);
         }
     }
 
@@ -213,6 +206,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 mMoviesList = movieArray;
                 movieAdapter = new MovieAdapter(mMoviesList, MainActivity.this, MainActivity.this);
                 recyclerView.setAdapter(movieAdapter);
+                recyclerView.getLayoutManager().onRestoreInstanceState(rvListState);
             }
         }
     }
