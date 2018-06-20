@@ -43,10 +43,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public static Resources resources;
     private ArrayList<Movie> mMoviesList;
     public final static String RV_STATE_KEY = "recycler_list_state";
-    public final static String NSV_STATE_KEY = "nested_list_state";
     public final static String MOVIE_LIST_KEY = "movie_list_state";
     Parcelable rvListState;
-
+    private int orChange;
 
 
     @Override
@@ -62,14 +61,24 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         favorite = getString(R.string.favorite);
         String[] items = new String[]{popular, rating, favorite};
         recyclerView = findViewById(R.id.rv_film_list);
-        nestedScrollView = findViewById(R.id.nsv_main_list);
         dropdown = findViewById(R.id.spinner_dropdown);
         ArrayAdapter<String> dropDownAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, items);
         dropdown.setAdapter(dropDownAdapter);
         mGridLayoutManager = new GridLayoutManager(MainActivity.this, 2);
         recyclerView.setLayoutManager(mGridLayoutManager);
+
         recyclerView.setHasFixedSize(true);
-        loadMovieData(sortByPopular);
+
+        orChange = 0;
+        if (savedInstanceState != null) {
+            mMoviesList = savedInstanceState.getParcelableArrayList(MOVIE_LIST_KEY);
+            movieAdapter = new MovieAdapter(mMoviesList, this, this);
+            movieAdapter.swapData(mMoviesList);
+            recyclerView.getLayoutManager().onRestoreInstanceState(rvListState);
+            orChange = 1;
+        } else {
+            loadMovieData(sortByPopular);
+        }
 
 
         dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -86,7 +95,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                         loadMovieData(sortByRating);
                         break;
                     case 2:
-                        getSupportLoaderManager().restartLoader(LOADER_ID, null, MainActivity.this);
+                        if (orChange == 1) {
+                            break;
+                        } else {
+                            getSupportLoaderManager().restartLoader(LOADER_ID, null, MainActivity.this);
+
+                        }
                         break;
                     default:
                         loadMovieData(sortByPopular);
@@ -110,8 +124,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
 
-
-
     @Override
     protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
@@ -119,7 +131,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         rvListState = recyclerView.getLayoutManager().onSaveInstanceState();
         state.putParcelable(RV_STATE_KEY, rvListState);
         state.putParcelableArrayList(MOVIE_LIST_KEY, mMoviesList);
-        state.putIntArray(NSV_STATE_KEY, new int[]{nestedScrollView.getScrollX(), nestedScrollView.getScrollY()} );
     }
 
 
@@ -128,22 +139,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         super.onRestoreInstanceState(state);
         // Retrieve list state and list/item positions
 
-        if (state != null){
-            final int[] nsv_position = state.getIntArray(NSV_STATE_KEY);
-            if(nsv_position!= null){
-                nestedScrollView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        nestedScrollView.scrollTo(nsv_position[0], nsv_position[1]);
-                    }
-                });
-            }
+        if (state != null) {
             rvListState = state.getParcelable(RV_STATE_KEY);
             mMoviesList = state.getParcelableArrayList(MOVIE_LIST_KEY);
-            recyclerView.getLayoutManager().onRestoreInstanceState(rvListState);
         }
     }
-
 
 
     @SuppressLint("StaticFieldLeak")
@@ -156,8 +156,27 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     @Override
     public void onLoadFinished(Loader loader, Object data) {
+        ArrayList<Movie> favoriteMovies = new ArrayList<>();
         if (dropdown.getSelectedItemPosition() == 2) {
-            movieAdapter.swapData((Cursor) data);
+            Cursor c = (Cursor) data;
+            for (int i = 0; i < c.getCount(); i++) {
+                if (!c.moveToPosition(i)) {
+                    return;
+                } else {
+                    String movieName = c.getString(c.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_NAME));
+                    String moviePosterLink = c.getString(c.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_POSTER));
+                    String movieDescription = c.getString(c.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_DESCRIPTION));
+                    String movieRelease = c.getString(c.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_RELEASE));
+                    String movieVote = c.getString(c.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_VOTE));
+                    int movieId = Integer.parseInt(c.getString(c.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_ID)));
+                    Movie movie = new Movie(movieName, moviePosterLink, movieDescription, movieVote, movieRelease, movieId);
+                    int dbID = c.getInt(c.getColumnIndex(MoviesContract.MoviesEntry._ID));
+                    movie.setDbID(dbID);
+                    favoriteMovies.add(movie);
+                }
+            }
+            mMoviesList = favoriteMovies;
+            movieAdapter.swapData(favoriteMovies);
         }
     }
 
@@ -192,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         protected void onPostExecute(ArrayList<Movie> movieArray) {
             if (movieArray != null) {
                 mMoviesList = movieArray;
-                movieAdapter = new MovieAdapter(mMoviesList, MainActivity.this);
+                movieAdapter = new MovieAdapter(mMoviesList, MainActivity.this, MainActivity.this);
                 recyclerView.setAdapter(movieAdapter);
             }
         }

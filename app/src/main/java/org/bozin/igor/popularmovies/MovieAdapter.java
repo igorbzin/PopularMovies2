@@ -1,8 +1,12 @@
 package org.bozin.igor.popularmovies;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.media.Image;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,11 +32,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         void onMovieItemClick(Movie clickedMovie);
     }
 
-    private ArrayList<Movie> movieList = new ArrayList<Movie>();
+    private ArrayList<Movie> mMovieList;
+    private Context mContext;
 
-    public MovieAdapter(ArrayList<Movie> movies, MovieItemClickListener onClickListener){
-        movieList = movies;
+    public MovieAdapter(ArrayList<Movie> movies, MovieItemClickListener onClickListener, Context context){
+        mMovieList = movies;
         mOnClickListener = onClickListener;
+        mContext = context;
     }
 
 
@@ -46,39 +52,39 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        String imageLink = movieList.get(position).getImageLink();
+        String imageLink = mMovieList.get(position).getImageLink();
         Log.v("Image", imageLink);
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        ((Activity) mContext).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        int width = 0;
+        int height = 0;
+        int orientation = mContext.getResources().getConfiguration().orientation;
+        if ( orientation == Configuration.ORIENTATION_PORTRAIT) {
+            width = displaymetrics.widthPixels / 2;
+            height = displaymetrics.heightPixels / 2;
+        } else if(orientation == Configuration.ORIENTATION_LANDSCAPE){
+            width = displaymetrics.widthPixels / 3;
+            height = displaymetrics.heightPixels ;
+
+        }
+
+
+        holder.moviePoster.getLayoutParams().width = width;
+        holder.moviePoster.getLayoutParams().height = height;
+
         Picasso.with(holder.moviePoster.getContext()).load(NetworkUtils.buildImageURL(imageLink).toString()).into(holder.moviePoster);
     }
 
 
-    public void swapData(Cursor c){
-        ArrayList<Movie> favoriteMovies = new ArrayList<>();
-        for(int i = 0 ; i< c.getCount(); i++){
-            if (!c.moveToPosition(i)){
-                return;
-            } else {
-                String movieName = c.getString(c.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_NAME));
-                String moviePosterLink = c.getString(c.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_POSTER));
-                String movieDescription = c.getString(c.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_DESCRIPTION));
-                String movieRelease = c.getString(c.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_RELEASE));
-                String movieVote = c.getString(c.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_VOTE));
-                int movieId = Integer.parseInt(c.getString(c.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_ID)));
-                Movie movie = new Movie(movieName, moviePosterLink, movieDescription, movieVote, movieRelease, movieId );
-                int dbID = c.getInt(c.getColumnIndex(MoviesContract.MoviesEntry._ID));
-                movie.setDbID(dbID);
-                favoriteMovies.add(movie);
-            }
-        }
-
-        movieList = favoriteMovies;
+    public void swapData(ArrayList<Movie> movieList){
+        mMovieList = movieList;
         this.notifyDataSetChanged();
 
     }
 
     @Override
     public int getItemCount() {
-        return movieList.size();
+        return mMovieList.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -93,7 +99,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         @Override
         public void onClick(View v) {
             int clickedPosition = getAdapterPosition();
-            Movie clickedMovie = movieList.get(clickedPosition);
+            Movie clickedMovie = mMovieList.get(clickedPosition);
             mOnClickListener.onMovieItemClick(clickedMovie);
         }
     }
