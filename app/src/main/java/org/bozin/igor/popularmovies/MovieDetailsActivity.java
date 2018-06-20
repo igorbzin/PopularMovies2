@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -47,6 +48,12 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailerAd
     private String vote_average;
     private String release_date;
     private int dbID;
+    private final String RV_TRAILER_KEY = "rv_trailer_state";
+    private final String RV_REVIEW_KEY = "rv_review_state";
+    Parcelable rvTrailerState;
+    Parcelable rvReviewState;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +123,22 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailerAd
             }
         });
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        rvTrailerState = RVTrailers.getLayoutManager().onSaveInstanceState();
+        rvReviewState = RVReviews.getLayoutManager().onSaveInstanceState();
+        outState.putParcelable(RV_TRAILER_KEY, rvTrailerState);
+        outState.putParcelable(RV_REVIEW_KEY, rvReviewState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        rvTrailerState = savedInstanceState.getParcelable(RV_TRAILER_KEY);
+        rvReviewState = savedInstanceState.getParcelable(RV_REVIEW_KEY);
     }
 
     @Override
@@ -249,6 +272,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailerAd
             RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MovieDetailsActivity.this, LinearLayoutManager.VERTICAL, false);
             RVTrailers.setLayoutManager(layoutManager);
             RVTrailers.setAdapter(trailerAdapter);
+            RVTrailers.getLayoutManager().onRestoreInstanceState(rvTrailerState);
             RVTrailers.setNestedScrollingEnabled(false);
         }
     }
@@ -283,6 +307,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailerAd
             RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MovieDetailsActivity.this, LinearLayoutManager.VERTICAL, false);
             RVReviews.setLayoutManager(layoutManager);
             RVReviews.setAdapter(reviewAdapter);
+            RVReviews.getLayoutManager().onRestoreInstanceState(rvReviewState);
             RVReviews.setNestedScrollingEnabled(false);
         }
     }

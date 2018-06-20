@@ -20,7 +20,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".MovieDetailsActivity"
-            android:configChanges="orientation|keyboardHidden"></activity>
+            android:configChanges="orientation|keyboardHidden" ></activity>
         <provider
             android:authorities="org.bozin.igor.popularmovies"
             android:name="org.bozin.igor.popularmovies.data.MovieContentProvider"/>
